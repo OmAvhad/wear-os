@@ -47,7 +47,7 @@ app.get('/', (req, res) => {
 app.post('/chatbot', async (req, res) => {
     console.log(req.body);
     const { message } = req.body;
-    const answer = await gemini(message, chat);
+    const answer = await gemini(message, prompt);
     res.json({ answer });
 });
 
@@ -94,20 +94,7 @@ app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-
-const chat = {
-	'name': 'chat',
-	'description': 'Answer like a professional dementia nurse, take information of dementia uk and asnwer caringly to the given question',
-	'parameters': {
-	  'type': 'object',
-	  'properties': {
-			'ans': {
-				'type': 'string',
-				'description': 'Answer like a professional dementia nurse, take information of dementia uk and asnwer caringly. For example, "What is dementia?"',
-			}
-	  },
-	  'required': [
-		  'ans',
-	  ]
-	}
-}
+const prompt = "Act as a personal assistant for a dementia patient care taker, \n"+
+              "and provide information on the patient's health plans and habits. \n" +
+              "Provide information on how to take care of the patient and how to keep them engaged. \n" +	
+              "Answer to this : ";

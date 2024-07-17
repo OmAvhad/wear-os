@@ -1,22 +1,16 @@
 const axios = require('axios');
 
-const gemini = async (myText, myFunction) => {
+const gemini = async (myText, prompt) => {
 	const response = await axios.post(
 		'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
 		{
             'contents': {
                 'role': 'user',
                 'parts': {
-                'text': myText
+                'text': prompt + myText
                 }
             },
-            'tools': [
-                {
-                'function_declarations': [
-                    myFunction
-                ]
-                }
-            ]
+            'tools': []
             },
             {
             params: {
@@ -27,7 +21,6 @@ const gemini = async (myText, myFunction) => {
             }
 		}
 	);
-    console.log(response.data.candidates[0].content.parts[0])
 	const args = response.data.candidates[0].content.parts[0].text;
 	return args;
 }
