@@ -1,35 +1,42 @@
-const WebSocket = require('ws');
-const http = require('http');
+const express = require('express');
+const expressWs = require('express-ws');
 
-const server = http.createServer((req, res) => {
-res.writeHead(200, { 'Content-Type': 'text/plain' });
-res.end('WebSocket server running');
-});
+const app = express();
+const { get } = expressWs(app);
 
-const wss = new WebSocket.Server({ server });
 const clients = new Set();
 
-wss.on('connection', (ws) => {
-console.log('Client connected');
+// Regular HTTP route
+app.get('/', (req, res) => {
+  res.send('WebSocket server running');
+});
 
-ws.on('message', (message) => {
+// WebSocket endpoint
+app.ws('/', (ws, req) => {
+  console.log('Client connected');
+
+  ws.on('message', (message) => {
     clients.add(ws);
     console.log(`Received message: ${message}`);
-    for (const client of clients) {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(`${message}`);
-        }
-    }
-    // ws.send(${message});
-});
+    broadcast(message);
+    // ws.send(message); // Echo message back to sender
+  });
 
-ws.on('close', () => {
+  ws.on('close', () => {
     clients.delete(ws);
     console.log('Client disconnected');
-});
+  });
 });
 
+function broadcast(message) {
+  for (const client of clients) {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  }
+}
+
 const PORT = 8080; // Change to your desired port
-server.listen(PORT, () => {
-console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
