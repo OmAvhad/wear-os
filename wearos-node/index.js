@@ -3,10 +3,13 @@ const expressWs = require('express-ws');
 const WebSocket = require('ws');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const gemini = require('./utils').gemini;
 
 
 const app = express();
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 const { get } = expressWs(app);
 
 // Connect to MongoDB Atlas
@@ -39,6 +42,13 @@ const clients = new Set();
 // Regular HTTP route
 app.get('/', (req, res) => {
   res.send('WebSocket server running');
+});
+
+app.post('/chatbot', async (req, res) => {
+    console.log(req.body);
+    const { message } = req.body;
+    const answer = await gemini(message, chat);
+    res.json({ answer });
 });
 
 // WebSocket endpoint with cors
@@ -83,3 +93,21 @@ const PORT = 8080; // Change to your desired port
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+
+const chat = {
+	'name': 'chat',
+	'description': 'Answer like a professional dementia nurse, take information of dementia uk and asnwer caringly to the given question',
+	'parameters': {
+	  'type': 'object',
+	  'properties': {
+			'ans': {
+				'type': 'string',
+				'description': 'Answer like a professional dementia nurse, take information of dementia uk and asnwer caringly. For example, "What is dementia?"',
+			}
+	  },
+	  'required': [
+		  'ans',
+	  ]
+	}
+}
