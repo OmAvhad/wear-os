@@ -1,5 +1,6 @@
 const express = require('express');
 const expressWs = require('express-ws');
+const WebSocket = require('ws');
 
 const app = express();
 const { get } = expressWs(app);
