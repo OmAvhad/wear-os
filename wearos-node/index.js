@@ -2,8 +2,11 @@ const express = require('express');
 const expressWs = require('express-ws');
 const WebSocket = require('ws');
 const mongoose = require('mongoose');
+const cors = require('cors');
+
 
 const app = express();
+app.use(cors());
 const { get } = expressWs(app);
 
 // Connect to MongoDB Atlas
@@ -38,27 +41,34 @@ app.get('/', (req, res) => {
   res.send('WebSocket server running');
 });
 
-// WebSocket endpoint
+// WebSocket endpoint with cors
 app.ws('/', (ws, req) => {
-  console.log('Client connected');
+    console.log('Client connected');
 
-  ws.on('message', (message) => {
-    clients.add(ws);
-    console.log(`Received message: ${message}`);
-    broadcast(message);
-    const data = JSON.parse(message);
-    const heartRate = new HeartRate({
-        value: data.heartRate,
-        date: new Date(),
+    ws.on('message', (message) => {
+        clients.add(ws);
+        console.log(`Received message: ${message}`);
+        broadcast(message);
+        const data = JSON.parse(message);
+        const heartRate = new HeartRate({
+                value: data.heartRate,
+                date: new Date(),
+        });
+        heartRate.save()
+        // ws.send(message); // Echo message back to sender
     });
-    heartRate.save()
-    // ws.send(message); // Echo message back to sender
-  });
 
-  ws.on('close', () => {
-    clients.delete(ws);
-    console.log('Client disconnected');
-  });
+    ws.on('close', () => {
+        clients.delete(ws);
+        console.log('Client disconnected');
+    });
+});
+
+// Enable CORS for WebSocket endpoint
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
 });
 
 function broadcast(message) {
