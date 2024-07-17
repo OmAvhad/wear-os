@@ -1,9 +1,35 @@
 const express = require('express');
 const expressWs = require('express-ws');
 const WebSocket = require('ws');
+const mongoose = require('mongoose');
 
 const app = express();
 const { get } = expressWs(app);
+
+// Connect to MongoDB Atlas
+const mongoURI = "mongodb+srv://omkhandu2017:FUX4O5o4rbGyvXGI@pune.jzcjolf.mongodb.net/?retryWrites=true&w=majority&appName=pune";
+
+mongoose
+	.connect(mongoURI, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+	})
+	.then(() => {
+		console.log("Connected to MongoDB Atlas");
+	})
+	.catch((error) => {
+		console.error("Error connecting to MongoDB Atlas:", error);
+	});
+
+// Define a schema
+const Schema = mongoose.Schema;
+const HeartRateSchema = new Schema({
+    value: Number,
+    date: Date,
+    });
+
+// Compile the model
+const HeartRate = mongoose.model('HeartRate', HeartRateSchema);
 
 const clients = new Set();
 
@@ -20,6 +46,12 @@ app.ws('/', (ws, req) => {
     clients.add(ws);
     console.log(`Received message: ${message}`);
     broadcast(message);
+    const data = JSON.parse(message);
+    const heartRate = new HeartRate({
+        value: data.heartRate,
+        date: new Date(),
+    });
+    heartRate.save()
     // ws.send(message); // Echo message back to sender
   });
 
