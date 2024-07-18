@@ -48,7 +48,16 @@ app.post('/chatbot', async (req, res) => {
     console.log(req.body);
     const { message } = req.body;
     const answer = await gemini(message, prompt);
-    res.json({ answer });
+    return res.json({ answer });
+});
+
+app.get('/heartrate', async (req, res) => {
+    const heartRates = await HeartRate.find()
+                      .select('value')
+                      .sort({ date: -1 })
+                      .limit(9);
+    return res.json(heartRates);
+
 });
 
 // WebSocket endpoint with cors
