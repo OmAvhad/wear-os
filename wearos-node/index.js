@@ -58,6 +58,9 @@ app.ws('/', (ws, req) => {
     ws.on('message', (message) => {
         clients.add(ws);
         console.log(`Received message: ${message}`);
+        if(message === 'Hello') {
+          return 
+        }
         broadcast(message);
         const data = JSON.parse(message);
         const heartRate = new HeartRate({
@@ -84,13 +87,14 @@ app.use((req, res, next) => {
 function broadcast(message) {
   for (const client of clients) {
     if (client.readyState === WebSocket.OPEN) {
+      console.log(client.readyState)
       client.send(message);
     }
   }
 }
 
 const PORT = 8080; // Change to your desired port
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
 
