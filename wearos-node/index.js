@@ -110,4 +110,4 @@ app.listen(PORT, "0.0.0.0", () => {
 const prompt = "Act as a personal assistant for a dementia patient care taker, \n"+
               "and provide information on the patient's health plans and habits. \n" +
               "Provide information on how to take care of the patient and how to keep them engaged. \n" +	
-              "Answer to this : ";
+              "Answer to this in 45 words : ";
