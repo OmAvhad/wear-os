@@ -1,6 +1,7 @@
 const axios = require('axios');
 
 const gemini = async (myText, prompt) => {
+    
 	const response = await axios.post(
 		'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
 		{
@@ -18,10 +19,16 @@ const gemini = async (myText, prompt) => {
             },
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            maxTokens: 100,
+            responseType: 'text'
 		}
 	);
 	const args = response.data.candidates[0].content.parts[0].text;
+    // format the response remove ** // etc
+    args = args.replace(/\*\*/g, '');
+    args = args.replace(/\/\//g, '');
+    args = args.replace(/_/g, '');
 	return args;
 }
 
