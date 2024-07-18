@@ -20,16 +20,29 @@ const gemini = async (myText, prompt) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            maxTokens: 100,
-            responseType: 'text'
+            maxTokens: 10
 		}
 	);
 	const args = response.data.candidates[0].content.parts[0].text;
-    // format the response remove ** // etc
-    args = args.replace(/\*\*/g, '');
-    args = args.replace(/\/\//g, '');
-    args = args.replace(/_/g, '');
-	return args;
+    // console.log(removeMarkdownFormatting(args));
+    return removeMarkdownFormatting(args);
 }
+
+function removeMarkdownFormatting(text) {
+    // Remove bold formatting (**)
+    text = text.replace(/\*\*/g, '');
+
+    // Remove bullet points
+    text = text.replace(/^\s*[\*\-]\s+/gm, '');
+
+    // Remove headings
+    text = text.replace(/^#+\s+/gm, '');
+
+    // remove /n
+    text = text.replace(/\n/g, ' ');
+
+    return text;
+}
+
 
 exports.gemini = gemini;    
